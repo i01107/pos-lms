@@ -1,0 +1,63 @@
+{
+  "courseId": "av-engineering-101",
+  "title": "Audio-Video Systems & Processing",
+  "description": "Master signal flow, acoustics, and digital video processing from home setups to enterprise deployments.",
+  "author": "Tech Learning Lab",
+  "version": "1.0.0",
+  "estimatedHours": 4,
+  "modules": [
+    {
+      "id": "mod-1",
+      "title": "Fundamentals of Digital Audio",
+      "lessons": [
+        {
+          "id": "les-101",
+          "title": "Understanding Sample Rates & Bit Depth",
+          "type": "markdown",
+          "durationMinutes": 15,
+          "content": "# Sample Rates and Bit Depth\n\nDigital audio recording relies on two core principles: **sampling rate** and **bit depth**.\n\n### Key Concepts\n* **Sample Rate:** Determines the frequency spectrum (e.g., 44.1kHz vs 48kHz).\n* **Bit Depth:** Controls dynamic range (16-bit vs 24-bit vs 32-bit float).\n\n> **Pro Tip:** Always record standard video projects at 48kHz / 24-bit to prevent audio-sync drift in post-production."
+        },
+        {
+          "id": "les-102",
+          "title": "Knowledge Check: Digital Audio",
+          "type": "quiz",
+          "durationMinutes": 10,
+          "quiz": {
+            "question": "Which sample rate is standard for professional broadcast video production?",
+            "options": [
+              "44.1 kHz",
+              "48.0 kHz",
+              "96.0 kHz",
+              "22.05 kHz"
+            ],
+            "correctIndex": 1,
+            "explanation": "While 44.1 kHz is standard for CD/music distribution, 48.0 kHz is the universal standard across video production and broadcasting."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mod-2",
+      "title": "Video Signal Standards & Display",
+      "lessons": [
+        {
+          "id": "les-201",
+          "title": "HDMI vs DisplayPort vs SDI",
+          "type": "markdown",
+          "durationMinutes": 20,
+          "content": "# Display Interconnects\n\nChoosing the right transport layer is critical for zero-latency audio-video pipelines.\n\n### Interface Matrix\n* **HDMI:** Consumer standard with HDCP encryption and ARC capabilities.\n* **DisplayPort:** PC standard optimized for high refresh rates and daisy-chaining.\n* **SDI (BNC):** Broadcast standard featuring locking connectors and ultra-long cable runs."
+        },
+        {
+          "id": "les-202",
+          "title": "Hands-on Project: Signal Flow Diagram",
+          "type": "assignment",
+          "durationMinutes": 45,
+          "assignment": {
+            "instructions": "Design a basic signal path diagram connecting a 4K Cam source, an audio mixer via XLR, and a dual TV/Monitor setup. Document your cable types and resolution constraints.",
+            "submissionType": "text"
+          }
+        }
+      ]
+    }
+  ]
+}

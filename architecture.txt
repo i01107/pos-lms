@@ -1,0 +1,14 @@
+my-lms-engine/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── DropZone.jsx         # Handles JSON upload/drag-and-drop
+│   │   ├── Sidebar.jsx          # Module/Lesson navigation & progress bar
+│   │   ├── LessonViewer.jsx     # Renders Markdown, Quizzes, or Assignments
+│   │   └── Navbar.jsx           # Clean header with course title & file switcher
+│   ├── App.jsx                  # Main state container (active lesson, course data)
+│   ├── index.css                # Tailwind directives
+│   └── main.jsx
+├── index.html
+├── tailwind.config.js
+└── package.json

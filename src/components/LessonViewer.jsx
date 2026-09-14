@@ -1,0 +1,177 @@
+import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { 
+  CheckCircle, 
+  Clock, 
+  BookOpen, 
+  HelpCircle, 
+  FileText, 
+  AlertCircle 
+} from 'lucide-react';
+
+export default function LessonViewer({ lesson, isCompleted, onToggleComplete }) {
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+
+  if (!lesson) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-slate-400 space-y-2">
+        <BookOpen className="w-10 h-10 text-slate-300" />
+        <p className="text-sm font-medium">Select a lesson from the sidebar to begin.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-8">
+      {/* Lesson Header */}
+      <div className="border-b border-slate-200 pb-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs uppercase tracking-wider font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+              {lesson.type === 'quiz' && <HelpCircle className="w-3.5 h-3.5" />}
+              {lesson.type === 'assignment' && <FileText className="w-3.5 h-3.5" />}
+              {lesson.type === 'markdown' && <BookOpen className="w-3.5 h-3.5" />}
+              {lesson.type}
+            </span>
+            <span className="text-xs text-slate-500 flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
+              {lesson.durationMinutes} mins
+            </span>
+          </div>
+
+          <button 
+            onClick={onToggleComplete}
+            className={`text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all ${
+              isCompleted 
+                ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' 
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <CheckCircle className={`w-4 h-4 ${isCompleted ? 'text-emerald-600' : 'text-slate-400'}`} />
+            {isCompleted ? 'Completed' : 'Mark as Complete'}
+          </button>
+        </div>
+        
+        <h1 className="text-3xl font-extrabold text-slate-900">{lesson.title}</h1>
+      </div>
+
+      {/* Lesson Type: Markdown with Code Highlighting */}
+      {lesson.type === 'markdown' && (
+        <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed space-y-4">
+          <ReactMarkdown
+            components={{
+              h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-slate-900 mt-6 mb-3" {...props} />,
+              h2: ({node, ...props}) => <h2 className="text-xl font-bold text-slate-900 mt-5 mb-2" {...props} />,
+              h3: ({node, ...props}) => <h3 className="text-lg font-semibold text-slate-800 mt-4 mb-2" {...props} />,
+              p: ({node, ...props}) => <p className="mb-4 leading-7" {...props} />,
+              ul: ({node, ...props}) => <ul className="list-disc list-inside mb-4 space-y-1" {...props} />,
+              ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-4 space-y-1" {...props} />,
+              blockquote: ({node, ...props}) => (
+                <blockquote className="border-l-4 border-emerald-500 bg-emerald-50/50 p-4 rounded-r-lg my-4 text-slate-700 italic" {...props} />
+              ),
+              code({ node, inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '');
+                return !inline && match ? (
+                  <div className="rounded-xl overflow-hidden my-4 shadow-sm border border-slate-800">
+                    <SyntaxHighlighter
+                      style={oneDark}
+                      language={match[1]}
+                      PreTag="div"
+                      customStyle={{ margin: 0, padding: '1.25rem', fontSize: '0.875rem' }}
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                  </div>
+                ) : (
+                  <code className="bg-slate-100 text-emerald-700 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                    {children}
+                  </code>
+                );
+              }
+            }}
+          >
+            {lesson.content}
+          </ReactMarkdown>
+        </div>
+      )}
+
+      {/* Lesson Type: Quiz */}
+      {lesson.type === 'quiz' && lesson.quiz && (
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5">
+          <div className="flex items-start gap-3">
+            <HelpCircle className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+            <h3 className="font-bold text-slate-900 text-base">{lesson.quiz.question}</h3>
+          </div>
+
+          <div className="space-y-2.5">
+            {lesson.quiz.options.map((option, idx) => (
+              <button
+                key={idx}
+                onClick={() => !quizSubmitted && setSelectedOption(idx)}
+                className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition-all flex items-center justify-between ${
+                  selectedOption === idx 
+                    ? 'border-emerald-600 bg-emerald-50/60 text-emerald-950 shadow-sm' 
+                    : 'border-slate-200 bg-white hover:bg-slate-100/80 text-slate-700'
+                }`}
+              >
+                <span>{option}</span>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                  selectedOption === idx ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
+                }`}>
+                  {selectedOption === idx && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {!quizSubmitted ? (
+            <button 
+              disabled={selectedOption === null}
+              onClick={() => setQuizSubmitted(true)}
+              className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-40 transition-all shadow-sm"
+            >
+              Submit Answer
+            </button>
+          ) : (
+            <div className={`p-4 rounded-xl text-sm border flex items-start gap-3 ${
+              selectedOption === lesson.quiz.correctIndex 
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900' 
+                : 'bg-rose-50 border-rose-200 text-rose-900'
+            }`}>
+              {selectedOption === lesson.quiz.correctIndex 
+                ? <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                : <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              }
+              <div>
+                <p className="font-bold mb-1">
+                  {selectedOption === lesson.quiz.correctIndex ? 'Correct!' : 'Incorrect'}
+                </p>
+                <p className="text-xs opacity-90 leading-relaxed">{lesson.quiz.explanation}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Lesson Type: Assignment */}
+      {lesson.type === 'assignment' && lesson.assignment && (
+        <div className="border border-indigo-200 bg-indigo-50/40 rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 text-indigo-950 font-bold">
+            <FileText className="w-5 h-5 text-indigo-600" />
+            <h3>Practical Assignment</h3>
+          </div>
+          <p className="text-slate-700 text-sm leading-relaxed">{lesson.assignment.instructions}</p>
+          <textarea 
+            rows="4" 
+            placeholder="Type your response or paste project links here..." 
+            className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
+          ></textarea>
+        </div>
+      )}
+    </div>
+  );
+}

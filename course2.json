@@ -1,0 +1,107 @@
+{
+  "courseId": "js-nodejs-fundamentals",
+  "title": "JavaScript & Node.js Fundamentals",
+  "description": "Learn core programming concepts using modern JavaScript running on the Node.js runtime environment.",
+  "author": "OpenLMS Academy",
+  "version": "1.0.0",
+  "estimatedHours": 3,
+  "modules": [
+    {
+      "id": "mod-1",
+      "title": "Introduction & Variables",
+      "lessons": [
+        {
+          "id": "les-101",
+          "title": "What is Programming & Node.js?",
+          "type": "markdown",
+          "durationMinutes": 15,
+          "content": "# What is Programming?\n\nProgramming is the process of writing instructions that a computer can execute to solve problems, automate tasks, or process data. \n\n### Enter JavaScript and Node.js\n* **JavaScript (JS):** Originally created to make web pages interactive in web browsers.\n* **Node.js:** A cross-platform runtime environment built on Google Chrome's V8 engine that allows developers to run JavaScript directly on their computer/server outside of a browser.\n\n### Running Your First Script\nTo run a JavaScript file using Node.js in your terminal:\n\n```javascript\n// app.js\nconsole.log(\"Hello, Node.js!\");\n```\n\nRun the command:\n```bash\nnode app.js\n```"
+        },
+        {
+          "id": "les-102",
+          "title": "Storing Data with Variables",
+          "type": "markdown",
+          "durationMinutes": 20,
+          "content": "# Understanding Variables\n\nVariables act as named containers for storing data values in memory.\n\n### Variable Keywords in Modern JS\n1. **`const`**: Used for values that **cannot** be reassigned.\n2. **`let`**: Used for values that **can** be reassigned later.\n3. **`var`**: The legacy keyword (avoid using in modern JavaScript).\n\n### Code Example\n```javascript\nconst appName = \"OpenLMS\";\nlet activeUsers = 120;\n\n// Reassigning let variable\nactiveUsers = 121;\n\nconsole.log(appName);     // Output: OpenLMS\nconsole.log(activeUsers); // Output: 121\n```\n\n> **Best Practice:** Default to using `const` everywhere, and only switch to `let` if you know the value needs to change."
+        },
+        {
+          "id": "les-103",
+          "title": "Knowledge Check: Variables",
+          "type": "quiz",
+          "durationMinutes": 5,
+          "quiz": {
+            "question": "Which variable keyword should you use by default when declaring a value that will never be reassigned?",
+            "options": [
+              "var",
+              "let",
+              "const",
+              "static"
+            ],
+            "correctIndex": 2,
+            "explanation": "`const` stands for constant and prevents variable reassignment, making code predictable and reducing accidental bugs."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mod-2",
+      "title": "Control Flow & Logic",
+      "lessons": [
+        {
+          "id": "les-201",
+          "title": "Branching with Conditional Statements",
+          "type": "markdown",
+          "durationMinutes": 20,
+          "content": "# Branching with Conditional Logic\n\nBranching allows your application to make decisions and run different code paths based on whether a condition evaluates to `true` or `false`.\n\n### `if`, `else if`, and `else`\n```javascript\nconst score = 85;\n\nif (score >= 90) {\n  console.log(\"Grade: A\");\n} else if (score >= 80) {\n  console.log(\"Grade: B\");\n} else {\n  console.log(\"Grade: C\");\n}\n```\n\n### Comparison Operators\n* `===` Strict equality (checks value & type)\n* `!==` Strict inequality\n* `>`, `<`, `>=`, `<=` Comparison bounds"
+        },
+        {
+          "id": "les-202",
+          "title": "Looping & Iteration",
+          "type": "markdown",
+          "durationMinutes": 20,
+          "content": "# Looping (Repetition)\n\nLoops execute a block of code repeatedly as long as a specified condition remains `true`.\n\n### 1. The Standard `for` Loop\nUsed when you know beforehand how many times you want to iterate.\n\n```javascript\nfor (let i = 1; i <= 5; i++) {\n  console.log(`Iteration number: ${i}`);\n}\n```\n\n### 2. The `while` Loop\nRuns as long as the condition evaluates to `true`.\n\n```javascript\nlet count = 3;\nwhile (count > 0) {\n  console.log(`Countdown: ${count}`);\n  count--;\n}\nconsole.log(\"Blast off!\");\n```"
+        },
+        {
+          "id": "les-203",
+          "title": "Knowledge Check: Control Flow",
+          "type": "quiz",
+          "durationMinutes": 5,
+          "quiz": {
+            "question": "What is the result of running a `for (let i = 0; i < 3; i++)` loop?",
+            "options": [
+              "It runs 2 times with i values 0, 1",
+              "It runs 3 times with i values 0, 1, 2",
+              "It runs 4 times with i values 0, 1, 2, 3",
+              "It causes an infinite loop"
+            ],
+            "correctIndex": 1,
+            "explanation": "The loop starts at i = 0, increments by 1 each time, and stops as soon as i reaches 3 (since 3 < 3 is false)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mod-3",
+      "title": "Functions & Hands-on Application",
+      "lessons": [
+        {
+          "id": "les-301",
+          "title": "Building Reusable Code with Functions",
+          "type": "markdown",
+          "durationMinutes": 25,
+          "content": "# Functions in JavaScript\n\nA function is a block of reusable code designed to perform a specific task. It can accept inputs (parameters) and return an output value.\n\n### 1. Function Declaration\n```javascript\nfunction calculateTotal(price, taxRate) {\n  const tax = price * taxRate;\n  return price + tax;\n}\n\nconst total = calculateTotal(100, 0.11);\nconsole.log(`Total Price: $${total}`); // Total Price: $111\n```\n\n### 2. Modern Arrow Functions\nES6 introduced concise arrow function syntax:\n\n```javascript\nconst multiply = (a, b) => a * b;\n\nconsole.log(multiply(4, 5)); // Output: 20\n```"
+        },
+        {
+          "id": "les-302",
+          "title": "Final Mini-Project Assignment",
+          "type": "assignment",
+          "durationMinutes": 35,
+          "assignment": {
+            "instructions": "Write a Node.js function named `filterEvenNumbers` that accepts an array of integers as a parameter. Inside the function, use a loop and branching logic (if/else) to collect only the even numbers into a new array, then return that array. Paste your complete JavaScript solution below.",
+            "submissionType": "text"
+          }
+        }
+      ]
+    }
+  ]
+}

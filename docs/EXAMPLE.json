@@ -1,0 +1,23 @@
+{
+  "courseId": "demo-101",
+  "title": "Demo Course",
+  "description": "Quick schema test",
+  "author": "System",
+  "version": "1.0.0",
+  "estimatedHours": 1,
+  "modules": [
+    {
+      "id": "m1",
+      "title": "Intro Module",
+      "lessons": [
+        {
+          "id": "l1",
+          "title": "Hello World",
+          "type": "markdown",
+          "durationMinutes": 5,
+          "content": "# Welcome\nThis is a sample."
+        }
+      ]
+    }
+  ]
+}
