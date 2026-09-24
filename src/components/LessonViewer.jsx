@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -9,12 +9,59 @@ import {
   BookOpen, 
   HelpCircle, 
   FileText, 
-  AlertCircle 
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight
 } from 'lucide-react';
 
-export default function LessonViewer({ lesson, isCompleted, onToggleComplete }) {
+export default function LessonViewer({
+  lesson,
+  isCompleted,
+  onToggleComplete,
+  hasPreviousLesson,
+  hasNextLesson,
+  onPreviousLesson,
+  onNextLesson,
+  onCompleteAndNext,
+}) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [isNextModalOpen, setIsNextModalOpen] = useState(false);
+  const nextModalRef = useRef(null);
+
+  useEffect(() => {
+    setSelectedOption(null);
+    setQuizSubmitted(false);
+    setIsNextModalOpen(false);
+  }, [lesson?.id]);
+
+  useEffect(() => {
+    if (isNextModalOpen) {
+      nextModalRef.current?.focus();
+    }
+  }, [isNextModalOpen]);
+
+  const handleNext = () => {
+    if (!hasNextLesson) {
+      return;
+    }
+
+    if (isCompleted) {
+      onNextLesson();
+    } else {
+      setIsNextModalOpen(true);
+    }
+  };
+
+  const continueToNextLesson = (markComplete) => {
+    setIsNextModalOpen(false);
+
+    if (markComplete) {
+      onCompleteAndNext();
+    } else {
+      onNextLesson();
+    }
+  };
 
   if (!lesson) {
     return (
@@ -184,6 +231,70 @@ export default function LessonViewer({ lesson, isCompleted, onToggleComplete }) 
             placeholder="Type your response or paste project links here..." 
             className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
           ></textarea>
+        </div>
+      )}
+
+      <nav className="flex items-center justify-between gap-4 border-t border-slate-200 pt-6" aria-label="Lesson navigation">
+        <button
+          type="button"
+          onClick={onPreviousLesson}
+          disabled={!hasPreviousLesson}
+          className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Previous
+        </button>
+
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!hasNextLesson}
+          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Next
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </nav>
+
+      {isNextModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+          <div
+            ref={nextModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="next-lesson-title"
+            aria-describedby="next-lesson-description"
+            tabIndex={-1}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                setIsNextModalOpen(false);
+              }
+            }}
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl outline-none"
+          >
+            <h2 id="next-lesson-title" className="text-xl font-bold text-slate-900">
+              Continue to the next lesson?
+            </h2>
+            <p id="next-lesson-description" className="mt-2 text-sm leading-6 text-slate-600">
+              Would you like to mark “{lesson.title}” as complete before continuing?
+            </p>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => continueToNextLesson(false)}
+                className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+              >
+                No, continue
+              </button>
+              <button
+                type="button"
+                onClick={() => continueToNextLesson(true)}
+                className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              >
+                Yes, mark complete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

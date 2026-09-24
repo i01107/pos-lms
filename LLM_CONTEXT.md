@@ -21,4 +21,4 @@ OpenLMS is an open-source, serverless, client-side LMS engine built with Vite + 
 - `src/components/DropZone.jsx` — JSON file reader & drop handler.
 - `src/components/Navbar.jsx` — Global header & course switcher.
 - `src/components/Sidebar.jsx` — Module/Lesson navigation & completion bar.
-- `src/components/LessonViewer.jsx` — Dynamic lesson renderer (Markdown, Quiz, Assignment).
+- `src/components/LessonViewer.jsx` — Dynamic lesson renderer (Markdown, Quiz, Assignment) and previous/next lesson controls. NEXT asks to mark an incomplete lesson complete; completed lessons advance immediately.

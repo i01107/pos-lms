@@ -90,6 +90,25 @@ export default function App() {
     persistCourse(updatedCourse);
   };
 
+  const completeLessonAndOpenNext = (lessonId, nextLessonId) => {
+    const updatedCourse = {
+      ...course,
+      lastActiveLessonId: nextLessonId,
+      modules: course.modules.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) => (
+          lesson.id === lessonId
+            ? { ...lesson, completed: true }
+            : lesson
+        )),
+      })),
+    };
+
+    setActiveLessonId(nextLessonId);
+    setCourse(updatedCourse);
+    persistCourse(updatedCourse);
+  };
+
   const openLesson = (lessonId) => {
     const updatedCourse = { ...course, lastActiveLessonId: lessonId };
     setActiveLessonId(lessonId);
@@ -117,8 +136,14 @@ export default function App() {
     URL.revokeObjectURL(downloadUrl);
   };
 
-  const activeLesson = getLessons(course).find((lesson) => lesson.id === activeLessonId);
-  const completedLessons = getLessons(course)
+  const lessons = getLessons(course);
+  const activeLessonIndex = lessons.findIndex((lesson) => lesson.id === activeLessonId);
+  const activeLesson = lessons[activeLessonIndex];
+  const previousLesson = activeLessonIndex > 0 ? lessons[activeLessonIndex - 1] : null;
+  const nextLesson = activeLessonIndex >= 0 && activeLessonIndex < lessons.length - 1
+    ? lessons[activeLessonIndex + 1]
+    : null;
+  const completedLessons = lessons
     .filter((lesson) => lesson.completed)
     .map((lesson) => lesson.id);
 
@@ -147,6 +172,13 @@ export default function App() {
               lesson={activeLesson} 
               isCompleted={completedLessons.includes(activeLessonId)}
               onToggleComplete={() => toggleLessonComplete(activeLessonId)}
+              hasPreviousLesson={Boolean(previousLesson)}
+              hasNextLesson={Boolean(nextLesson)}
+              onPreviousLesson={() => previousLesson && openLesson(previousLesson.id)}
+              onNextLesson={() => nextLesson && openLesson(nextLesson.id)}
+              onCompleteAndNext={() => (
+                nextLesson && completeLessonAndOpenNext(activeLessonId, nextLesson.id)
+              )}
             />
           </main>
         </div>

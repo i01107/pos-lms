@@ -29,3 +29,15 @@ Implement portable course-progress saving.
 - Preserve backward compatibility with existing course JSON files that do not yet include these fields.
 - Update the applicable documentation, including the JSON schema, as part of the implementation.
 <!-- End of task 3 -->
+
+# Task 4
+I want to implement a NEXT and PREV button at the end of each lesson
+
+- PREV button should have a very light grey background just to make it seen
+- give me advice on what color suitable for the NEXT button
+- when the NEXT button is clicked, show a focused modal box, which makes the rest of the page covered in a dark color with certain opacity
+- the modal box should ask whether the user wants to mark the current lesson as complete or not
+- YES answer makes the lesson marked as complete and the lesson move to the next one
+- NO answer only makes the lesson move to the next one
+- When the current lesson is already complete, clicking NEXT should move directly to the next lesson without showing the modal.
+<!-- End of task 4 -->
