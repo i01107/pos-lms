@@ -4,50 +4,131 @@ import Sidebar from './components/Sidebar';
 import LessonViewer from './components/LessonViewer';
 import DropZone from './components/DropZone';
 
+const getLessons = (course) => course?.modules?.flatMap((module) => module.lessons) ?? [];
+
+const prepareCourse = (courseData, legacyCompletedLessons = []) => {
+  const legacyCompleted = new Set(legacyCompletedLessons);
+  const lessons = getLessons(courseData);
+  const firstLessonId = lessons[0]?.id ?? null;
+  const validLastActiveLessonId = lessons.some(
+    (lesson) => lesson.id === courseData.lastActiveLessonId,
+  )
+    ? courseData.lastActiveLessonId
+    : firstLessonId;
+
+  return {
+    ...courseData,
+    lastActiveLessonId: validLastActiveLessonId,
+    modules: (courseData.modules ?? []).map((module) => ({
+      ...module,
+      lessons: module.lessons.map((lesson) => ({
+        ...lesson,
+        completed: lesson.completed === true || legacyCompleted.has(lesson.id),
+      })),
+    })),
+  };
+};
+
 export default function App() {
   const [course, setCourse] = useState(null);
   const [activeLessonId, setActiveLessonId] = useState(null);
-  const [completedLessons, setCompletedLessons] = useState([]);
+  const [originalFileName, setOriginalFileName] = useState(null);
+
+  const persistCourse = (updatedCourse) => {
+    localStorage.setItem('lms_course_data', JSON.stringify(updatedCourse));
+  };
 
   // Load course & progress from local storage on startup
   useEffect(() => {
     const savedCourse = localStorage.getItem('lms_course_data');
     const savedProgress = localStorage.getItem('lms_progress');
-    
+
     if (savedCourse) {
       const parsed = JSON.parse(savedCourse);
-      setCourse(parsed);
-      setActiveLessonId(parsed.modules[0]?.lessons[0]?.id || null);
-    }
-    if (savedProgress) {
-      setCompletedLessons(JSON.parse(savedProgress));
+      const migratedCourse = prepareCourse(parsed, savedProgress ? JSON.parse(savedProgress) : []);
+      setCourse(migratedCourse);
+      setActiveLessonId(migratedCourse.lastActiveLessonId);
+      persistCourse(migratedCourse);
+      localStorage.removeItem('lms_progress');
+      setOriginalFileName(localStorage.getItem('lms_course_file_name'));
     }
   }, []);
 
-  const handleJsonUpload = (jsonData) => {
-    setCourse(jsonData);
-    localStorage.setItem('lms_course_data', JSON.stringify(jsonData));
-    if (jsonData.modules?.[0]?.lessons?.[0]) {
-      setActiveLessonId(jsonData.modules[0].lessons[0].id);
-    }
+  const handleJsonUpload = (jsonData, fileName) => {
+    const uploadedCourse = prepareCourse(jsonData);
+    setCourse(uploadedCourse);
+    setActiveLessonId(uploadedCourse.lastActiveLessonId);
+    setOriginalFileName(fileName);
+    persistCourse(uploadedCourse);
+    localStorage.setItem('lms_course_file_name', fileName);
+    localStorage.removeItem('lms_progress');
+  };
+
+  const resetCourse = () => {
+    localStorage.removeItem('lms_course_data');
+    localStorage.removeItem('lms_progress');
+    localStorage.removeItem('lms_course_file_name');
+    setCourse(null);
+    setActiveLessonId(null);
+    setOriginalFileName(null);
   };
 
   const toggleLessonComplete = (lessonId) => {
-    const updated = completedLessons.includes(lessonId)
-      ? completedLessons.filter(id => id !== lessonId)
-      : [...completedLessons, lessonId];
-    
-    setCompletedLessons(updated);
-    localStorage.setItem('lms_progress', JSON.stringify(updated));
+    const updatedCourse = {
+      ...course,
+      modules: course.modules.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) => (
+          lesson.id === lessonId
+            ? { ...lesson, completed: !lesson.completed }
+            : lesson
+        )),
+      })),
+    };
+
+    setCourse(updatedCourse);
+    persistCourse(updatedCourse);
   };
 
-  const activeLesson = course?.modules
-    .flatMap(m => m.lessons)
-    .find(l => l.id === activeLessonId);
+  const openLesson = (lessonId) => {
+    const updatedCourse = { ...course, lastActiveLessonId: lessonId };
+    setActiveLessonId(lessonId);
+    setCourse(updatedCourse);
+    persistCourse(updatedCourse);
+  };
+
+  const saveProgress = () => {
+    const baseName = (originalFileName || course.title || 'course').replace(/\.json$/i, '');
+    const now = new Date();
+    const date = [
+      String(now.getDate()).padStart(2, '0'),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getFullYear()).slice(-2),
+    ].join('-');
+    const file = new Blob([JSON.stringify(course, null, 2)], { type: 'application/json' });
+    const downloadUrl = URL.createObjectURL(file);
+    const link = document.createElement('a');
+
+    link.href = downloadUrl;
+    link.download = `${baseName} - update ${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(downloadUrl);
+  };
+
+  const activeLesson = getLessons(course).find((lesson) => lesson.id === activeLessonId);
+  const completedLessons = getLessons(course)
+    .filter((lesson) => lesson.completed)
+    .map((lesson) => lesson.id);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
-      <Navbar courseTitle={course?.title} resetCourse={() => setCourse(null)} />
+      <Navbar
+        courseTitle={course?.title}
+        resetCourse={resetCourse}
+        saveProgress={saveProgress}
+      />
 
       {!course ? (
         <main className="flex-1 flex items-center justify-center p-6">
@@ -58,7 +139,7 @@ export default function App() {
           <Sidebar 
             modules={course.modules} 
             activeLessonId={activeLessonId} 
-            setActiveLessonId={setActiveLessonId}
+            setActiveLessonId={openLesson}
             completedLessons={completedLessons}
           />
           <main className="flex-1 overflow-y-auto p-8 lg:p-12">

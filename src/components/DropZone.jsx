@@ -10,7 +10,7 @@ export default function DropZone({ onFileLoaded }) {
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target.result);
-        onFileLoaded(parsed);
+        onFileLoaded(parsed, file.name);
       } catch (err) {
         alert("Invalid JSON file formatting. Please check your course file.");
       }
