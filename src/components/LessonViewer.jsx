@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { 
@@ -72,6 +73,18 @@ export default function LessonViewer({ lesson, isCompleted, onToggleComplete }) 
               blockquote: ({node, ...props}) => (
                 <blockquote className="border-l-4 border-emerald-500 bg-emerald-50/50 p-4 rounded-r-lg my-4 text-slate-700 italic" {...props} />
               ),
+              table: ({node, ...props}) => (
+                <div className="my-6 overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                  <table className="min-w-full border-collapse text-left text-sm" {...props} />
+                </div>
+              ),
+              thead: ({node, ...props}) => <thead className="bg-slate-100 text-slate-900" {...props} />,
+              tbody: ({node, ...props}) => <tbody className="divide-y divide-slate-200 bg-white" {...props} />,
+              tr: ({node, ...props}) => <tr className="border-b border-slate-200 last:border-b-0" {...props} />,
+              th: ({node, ...props}) => (
+                <th className="whitespace-nowrap px-4 py-3 font-semibold" {...props} />
+              ),
+              td: ({node, ...props}) => <td className="px-4 py-3 align-top" {...props} />,
               code({ node, inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
                 return !inline && match ? (
@@ -93,6 +106,7 @@ export default function LessonViewer({ lesson, isCompleted, onToggleComplete }) 
                 );
               }
             }}
+            remarkPlugins={[remarkGfm]}
           >
             {lesson.content}
           </ReactMarkdown>
