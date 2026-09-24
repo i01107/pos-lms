@@ -24,7 +24,7 @@ export default function Navbar({ courseTitle, resetCourse, saveProgress }) {
           <div className="w-8 h-8 bg-slate-900 text-emerald-400 rounded-lg flex items-center justify-center font-black text-lg shadow-sm">
             L
           </div>
-          <span className="font-bold text-slate-900 text-lg tracking-tight">OpenLMS</span>
+          <span className="font-bold text-slate-900 text-lg tracking-tight">POS-LMS</span>
         </div>
 
         {/* Active Course Title & Reset Action */}

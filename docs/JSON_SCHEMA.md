@@ -1,6 +1,6 @@
-# OpenLMS Course JSON Schema Spec
+# POS-LMS Course JSON Schema Spec
 
-Every course file fed into OpenLMS must strictly adhere to the following structure.
+Every course file fed into POS-LMS must strictly adhere to the following structure.
 
 ## Core Schema
 ```typescript
@@ -50,4 +50,4 @@ interface Assignment {
 
 ## Learner Progress
 
-`completed` and `lastActiveLessonId` are optional so original course files remain valid. OpenLMS stores changes to these fields in browser localStorage while a course is open. Selecting **Save My Progress** downloads a copy of the course JSON with the current progress embedded, allowing a learner to upload that file later and resume the course.
+`completed` and `lastActiveLessonId` are optional so original course files remain valid. POS-LMS stores changes to these fields in browser localStorage while a course is open. Selecting **Save My Progress** downloads a copy of the course JSON with the current progress embedded, allowing a learner to upload that file later and resume the course.

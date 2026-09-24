@@ -1,7 +1,7 @@
-# OpenLMS Architecture & Rules
+# POS-LMS Architecture & Rules
 
 ## Project Summary
-OpenLMS is an open-source, serverless, client-side LMS engine built with Vite + React + Tailwind CSS. It parses local JSON course files via drag-and-drop or file selection and dynamically renders lessons, interactive quizzes, markdown content, and assignments without a backend server.
+POS-LMS (Portable Open Source LMS) is an open-source, serverless, client-side LMS engine built with Vite + React + Tailwind CSS. It parses local JSON course files via drag-and-drop or file selection and dynamically renders lessons, interactive quizzes, markdown content, and assignments without a backend server.
 
 ## Tech Stack
 - **Framework:** React 18 (Vite SPA)
