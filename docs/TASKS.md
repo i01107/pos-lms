@@ -41,3 +41,19 @@ I want to implement a NEXT and PREV button at the end of each lesson
 - NO answer only makes the lesson move to the next one
 - When the current lesson is already complete, clicking NEXT should move directly to the next lesson without showing the modal.
 <!-- End of task 4 -->
+
+# Task 5
+I want some behavior updates :
+- I want the left sidebar to be sticky, so when I scroll, I want to keep seeing it
+- I want to have a `Restart` button with an exclamation icon, background yellow. Details are below
+- If the user jump between lessons through the sidebar menu, I want the lesson to open the lesson from the beginning, not in the middle of the page ( lesson )
+
+## RESTART button detail
+When user click it, it will :
+- show a modal box just like when you click NEXT button
+- it should ask : "Are you sure ? Any unsaved progress will be lost forever"
+- it has 2 button : "I am sure", "No, bring me back to my lesson"
+- clicking "I am sure" button will lead to module reset, just like when you hit the `Switch Course` button
+- clicking "No, bring me back to my lesson" button will just simply close the modal box
+- give a proper background for each button
+<!-- End of task 5 -->

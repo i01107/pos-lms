@@ -8,7 +8,7 @@ export default function Sidebar({ modules, activeLessonId, setActiveLessonId, co
     : 0;
 
   return (
-    <aside className="w-80 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 h-full">
+    <aside className="sticky top-16 z-20 h-[calc(100vh-4rem)] w-80 self-start bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
       {/* Progress Header */}
       <div className="p-6 border-b border-slate-200 bg-white">
         <div className="flex justify-between items-center mb-2">

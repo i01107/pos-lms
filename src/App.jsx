@@ -109,11 +109,15 @@ export default function App() {
     persistCourse(updatedCourse);
   };
 
-  const openLesson = (lessonId) => {
+  const openLesson = (lessonId, scrollToLessonStart = false) => {
     const updatedCourse = { ...course, lastActiveLessonId: lessonId };
     setActiveLessonId(lessonId);
     setCourse(updatedCourse);
     persistCourse(updatedCourse);
+
+    if (scrollToLessonStart) {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
   };
 
   const saveProgress = () => {
@@ -160,14 +164,14 @@ export default function App() {
           <DropZone onFileLoaded={handleJsonUpload} />
         </main>
       ) : (
-        <div className="flex-1 flex max-w-7xl w-full mx-auto overflow-hidden shadow-sm border-x border-slate-200 bg-white">
+        <div className="flex-1 flex max-w-7xl w-full mx-auto shadow-sm border-x border-slate-200 bg-white">
           <Sidebar 
             modules={course.modules} 
             activeLessonId={activeLessonId} 
-            setActiveLessonId={openLesson}
+            setActiveLessonId={(lessonId) => openLesson(lessonId, true)}
             completedLessons={completedLessons}
           />
-          <main className="flex-1 overflow-y-auto p-8 lg:p-12">
+          <main className="min-w-0 flex-1 p-8 lg:p-12">
             <LessonViewer 
               lesson={activeLesson} 
               isCompleted={completedLessons.includes(activeLessonId)}
