@@ -11,7 +11,8 @@ import {
   FileText, 
   AlertCircle,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Lightbulb
 } from 'lucide-react';
 
 function MarkdownContent({ children, className = '' }) {
@@ -81,12 +82,17 @@ export default function LessonViewer({
 }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [assignmentResponse, setAssignmentResponse] = useState('');
+  const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
   const [isNextModalOpen, setIsNextModalOpen] = useState(false);
   const nextModalRef = useRef(null);
+  const answer = lesson?.answer ?? lesson?.quiz?.answer ?? lesson?.assignment?.answer;
 
   useEffect(() => {
     setSelectedOption(null);
     setQuizSubmitted(false);
+    setAssignmentResponse('');
+    setAssignmentSubmitted(false);
     setIsNextModalOpen(false);
   }, [lesson?.id]);
 
@@ -117,6 +123,16 @@ export default function LessonViewer({
       onNextLesson();
     }
   };
+
+  const AnswerCard = () => (
+    <div className="border border-emerald-200 bg-emerald-50/40 rounded-2xl p-6 space-y-4">
+      <div className="flex items-center gap-2 text-emerald-950 font-bold">
+        <Lightbulb className="w-5 h-5 text-amber-400 fill-amber-200" />
+        <h3>Jawaban dari Pembuat Soal</h3>
+      </div>
+      <MarkdownContent className="text-sm">{answer}</MarkdownContent>
+    </div>
+  );
 
   if (!lesson) {
     return (
@@ -168,78 +184,94 @@ export default function LessonViewer({
 
       {/* Lesson Type: Quiz */}
       {lesson.type === 'quiz' && lesson.quiz && (
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5">
-          <div className="flex items-start gap-3">
-            <HelpCircle className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
-            <h3 className="font-bold text-slate-900 text-base">{lesson.quiz.question}</h3>
-          </div>
-
-          <div className="space-y-2.5">
-            {lesson.quiz.options.map((option, idx) => (
-              <button
-                key={idx}
-                onClick={() => !quizSubmitted && setSelectedOption(idx)}
-                className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition-all flex items-center justify-between ${
-                  selectedOption === idx 
-                    ? 'border-emerald-600 bg-emerald-50/60 text-emerald-950 shadow-sm' 
-                    : 'border-slate-200 bg-white hover:bg-slate-100/80 text-slate-700'
-                }`}
-              >
-                <span>{option}</span>
-                <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                  selectedOption === idx ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
-                }`}>
-                  {selectedOption === idx && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {!quizSubmitted ? (
-            <button 
-              disabled={selectedOption === null}
-              onClick={() => setQuizSubmitted(true)}
-              className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-40 transition-all shadow-sm"
-            >
-              Submit Answer
-            </button>
-          ) : (
-            <div className={`p-4 rounded-xl text-sm border flex items-start gap-3 ${
-              selectedOption === lesson.quiz.correctIndex 
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-900' 
-                : 'bg-rose-50 border-rose-200 text-rose-900'
-            }`}>
-              {selectedOption === lesson.quiz.correctIndex 
-                ? <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                : <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-              }
-              <div>
-                <p className="font-bold mb-1">
-                  {selectedOption === lesson.quiz.correctIndex ? 'Correct!' : 'Incorrect'}
-                </p>
-                <p className="text-xs opacity-90 leading-relaxed">{lesson.quiz.explanation}</p>
-              </div>
+        <>
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5">
+            <div className="flex items-start gap-3">
+              <HelpCircle className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+              <h3 className="font-bold text-slate-900 text-base">{lesson.quiz.question}</h3>
             </div>
-          )}
-        </div>
+
+            <div className="space-y-2.5">
+              {lesson.quiz.options.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => !quizSubmitted && setSelectedOption(idx)}
+                  className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition-all flex items-center justify-between ${
+                    selectedOption === idx
+                      ? 'border-emerald-600 bg-emerald-50/60 text-emerald-950 shadow-sm'
+                      : 'border-slate-200 bg-white hover:bg-slate-100/80 text-slate-700'
+                  }`}
+                >
+                  <span>{option}</span>
+                  <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                    selectedOption === idx ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
+                  }`}>
+                    {selectedOption === idx && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {!quizSubmitted ? (
+              <button
+                disabled={selectedOption === null}
+                onClick={() => setQuizSubmitted(true)}
+                className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-40 transition-all shadow-sm"
+              >
+                Submit Answer
+              </button>
+            ) : (
+              <div className={`p-4 rounded-xl text-sm border flex items-start gap-3 ${
+                selectedOption === lesson.quiz.correctIndex
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                  : 'bg-rose-50 border-rose-200 text-rose-900'
+              }`}>
+                {selectedOption === lesson.quiz.correctIndex
+                  ? <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  : <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                }
+                <div>
+                  <p className="font-bold mb-1">
+                    {selectedOption === lesson.quiz.correctIndex ? 'Correct!' : 'Incorrect'}
+                  </p>
+                  <p className="text-xs opacity-90 leading-relaxed">{lesson.quiz.explanation}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          {quizSubmitted && answer && <AnswerCard />}
+        </>
       )}
 
       {/* Lesson Type: Assignment */}
       {lesson.type === 'assignment' && lesson.assignment && (
-        <div className="border border-indigo-200 bg-indigo-50/40 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center gap-2 text-indigo-950 font-bold">
-            <FileText className="w-5 h-5 text-indigo-600" />
-            <h3>Practical Assignment</h3>
+        <>
+          <div className="border border-indigo-200 bg-indigo-50/40 rounded-2xl p-6 space-y-4">
+            <div className="flex items-center gap-2 text-indigo-950 font-bold">
+              <FileText className="w-5 h-5 text-indigo-600" />
+              <h3>Practical Assignment</h3>
+            </div>
+            <MarkdownContent className="text-sm">
+              {lesson.assignment.instructions}
+            </MarkdownContent>
+            <textarea
+              rows="4"
+              value={assignmentResponse}
+              onChange={(event) => setAssignmentResponse(event.target.value)}
+              placeholder="Type your response or paste project links here..."
+              className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
+            />
+            <button
+              type="button"
+              disabled={!assignmentResponse.trim()}
+              onClick={() => setAssignmentSubmitted(true)}
+              className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-sm"
+            >
+              Submit Answer
+            </button>
           </div>
-          <MarkdownContent className="text-sm">
-            {lesson.assignment.instructions}
-          </MarkdownContent>
-          <textarea 
-            rows="4" 
-            placeholder="Type your response or paste project links here..." 
-            className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
-          ></textarea>
-        </div>
+          {assignmentSubmitted && answer && <AnswerCard />}
+        </>
       )}
 
       <nav className="flex items-center justify-between gap-4 border-t border-slate-200 pt-6" aria-label="Lesson navigation">
