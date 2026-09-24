@@ -109,6 +109,21 @@ export default function App() {
     persistCourse(updatedCourse);
   };
 
+  const completeLesson = (lessonId) => {
+    const updatedCourse = {
+      ...course,
+      modules: course.modules.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) => (
+          lesson.id === lessonId ? { ...lesson, completed: true } : lesson
+        )),
+      })),
+    };
+
+    setCourse(updatedCourse);
+    persistCourse(updatedCourse);
+  };
+
   const openLesson = (lessonId, scrollToLessonStart = false) => {
     const updatedCourse = { ...course, lastActiveLessonId: lessonId };
     setActiveLessonId(lessonId);
@@ -183,6 +198,7 @@ export default function App() {
               onCompleteAndNext={() => (
                 nextLesson && completeLessonAndOpenNext(activeLessonId, nextLesson.id)
               )}
+              onFinishCourse={() => completeLesson(activeLessonId)}
             />
           </main>
         </div>

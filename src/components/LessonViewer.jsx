@@ -12,7 +12,9 @@ import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
-  Lightbulb
+  Lightbulb,
+  PartyPopper,
+  Sparkles
 } from 'lucide-react';
 
 function MarkdownContent({ children, className = '' }) {
@@ -79,13 +81,16 @@ export default function LessonViewer({
   onPreviousLesson,
   onNextLesson,
   onCompleteAndNext,
+  onFinishCourse,
 }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [assignmentResponse, setAssignmentResponse] = useState('');
   const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
   const [isNextModalOpen, setIsNextModalOpen] = useState(false);
+  const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
   const nextModalRef = useRef(null);
+  const finishModalRef = useRef(null);
   const answer = lesson?.answer ?? lesson?.quiz?.answer ?? lesson?.assignment?.answer;
 
   useEffect(() => {
@@ -94,6 +99,7 @@ export default function LessonViewer({
     setAssignmentResponse('');
     setAssignmentSubmitted(false);
     setIsNextModalOpen(false);
+    setIsFinishModalOpen(false);
   }, [lesson?.id]);
 
   useEffect(() => {
@@ -101,6 +107,12 @@ export default function LessonViewer({
       nextModalRef.current?.focus();
     }
   }, [isNextModalOpen]);
+
+  useEffect(() => {
+    if (isFinishModalOpen) {
+      finishModalRef.current?.focus();
+    }
+  }, [isFinishModalOpen]);
 
   const handleNext = () => {
     if (!hasNextLesson) {
@@ -122,6 +134,11 @@ export default function LessonViewer({
     } else {
       onNextLesson();
     }
+  };
+
+  const finishCourse = () => {
+    onFinishCourse();
+    setIsFinishModalOpen(true);
   };
 
   const AnswerCard = () => (
@@ -285,15 +302,25 @@ export default function LessonViewer({
           Previous
         </button>
 
-        <button
-          type="button"
-          onClick={handleNext}
-          disabled={!hasNextLesson}
-          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Next
-          <ArrowRight className="h-4 w-4" />
-        </button>
+        {hasNextLesson ? (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          >
+            Next
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={finishCourse}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          >
+            Finish
+            <PartyPopper className="h-4 w-4" />
+          </button>
+        )}
       </nav>
 
       {isNextModalOpen && (
@@ -332,6 +359,46 @@ export default function LessonViewer({
                 className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
                 Yes, mark complete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isFinishModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+          <div
+            ref={finishModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="finish-title"
+            aria-describedby="finish-description"
+            tabIndex={-1}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                setIsFinishModalOpen(false);
+              }
+            }}
+            className="w-full max-w-md overflow-hidden rounded-2xl bg-white text-center shadow-2xl outline-none"
+          >
+            <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 px-6 pb-8 pt-10 text-white">
+              <Sparkles className="absolute left-8 top-6 h-5 w-5 animate-pulse text-amber-200" />
+              <Sparkles className="absolute right-10 top-12 h-4 w-4 animate-pulse text-amber-100 [animation-delay:300ms]" />
+              <PartyPopper className="mx-auto h-16 w-16 animate-bounce text-amber-200" />
+              <h2 id="finish-title" className="mt-4 text-2xl font-extrabold">
+                Congratulations!
+              </h2>
+            </div>
+            <div className="p-6">
+              <p id="finish-description" className="text-sm leading-6 text-slate-600">
+                You have finished this module. Your final lesson has been marked as complete.
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsFinishModalOpen(false)}
+                className="mt-6 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              >
+                Celebrate!
               </button>
             </div>
           </div>

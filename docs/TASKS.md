@@ -59,10 +59,17 @@ When user click it, it will :
 <!-- End of task 5 -->
 
 # Task 6
-For every essai ( assignment ) type of lesson, I like to introduce new key called "answer". You can see the example on `mat_7_bab_1_1_2.json` file.
+For every essai ( assignment ) type of lesson, I like to introduce new key called "answer". You can see the example on `course3.json` file.
 
 What I want you to do is :
 - Assignment should also have a "Submit Answer" button like quiz, right below the text area
 - In any lesson / quiz / assignment which has "answer", when user Submit Answer, show the answer ( which is in markdown format ) properly in a separate card below the `Practical Assignment` card. Same design with the Practical Assignment card, but I want the background to be green with the same opacity with the Practical Assignment
 - The title of the card will be `Jawaban dari Pembuat Soal`, use a bright light bulb icon
 <!-- End of task 6 -->
+
+# Task 7
+On the last lesson, I want the Next button changed into Finish button. When user click it, it will :
+- Update the lesson state into complete
+- Show a congratulations modal box and congrats the user that he already finish the module
+- A bit of animation using javacript or animated gif / png image like trumpet or anything which showing a celebration would be nice
+<!-- End of task 7 -->
