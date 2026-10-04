@@ -16,6 +16,34 @@
           "type": "markdown",
           "durationMinutes": 5,
           "content": "# Welcome\nThis is a sample."
+        },
+        {
+          "id": "c1",
+          "title": "🚗 Soal 1 : The title",
+          "type": "quiz",
+          "durationMinutes": 4,
+          "quiz": {
+            "question": "The question?",
+            "options": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ],
+            "correctIndex": 1,
+            "explanation": "This is the explanation"
+          }
+        },
+        {
+          "id": "c2",
+          "title": "🚀 Soal 2 : The title",
+          "type": "assignment",
+          "durationMinutes": 10,
+          "assignment": {
+            "instructions": "The problem that you have to solve",
+            "submissionType": "text",
+            "answer": "## Jawaban Soal 2\n\n### Jawaban"
+          }
         }
       ]
     }
