@@ -10,7 +10,7 @@ It is designed for individuals who want to create, share, and revisit structured
 - Organize content into modules and lessons.
 - Render Markdown lessons with GitHub Flavored Markdown support and syntax-highlighted code blocks.
 - Provide multiple-choice quizzes with immediate correctness feedback.
-- Provide written assignments with an optional author-provided answer in Markdown.
+- Provide essay challenges with a separate checked answer for each question.
 - Track completed lessons and the last active lesson locally in the browser.
 - Navigate lessons from a sticky sidebar, or with Previous and Next controls.
 - Mark lessons complete directly, or when moving to the next lesson.
@@ -75,7 +75,7 @@ Upload that exported file later to restore completed lessons and resume at the l
 
 ### Restarting or changing course
 
-- **Restart** asks for confirmation, then clears lesson completion and all quiz and assignment responses and returns to the first lesson in the current course.
+- **Restart** asks for confirmation, then clears lesson completion and all quiz and essay responses and returns to the first lesson in the current course.
 - **Switch Course** immediately removes the currently loaded course and its local progress.
 
 Export progress before using either action if you want to continue the course later. Restart clears progress in the current browser; a previously exported file remains available to upload again.
@@ -84,9 +84,9 @@ Export progress before using either action if you want to continue the course la
 
 A course is a JSON file containing course metadata, modules, and lessons. Each lesson must have a unique `id` within the course and one of these types:
 
-- `markdown` — explanatory material written in Markdown
-- `quiz` — a multiple-choice question
-- `assignment` — a written activity
+- `lesson` — explanatory material written in Markdown
+- `abcd_challenge` — a multiple-choice question
+- `essay_challenge` — one or more written questions with individual model answers
 
 Start with [`docs/EXAMPLE.json`](docs/EXAMPLE.json) as a template. The complete field reference is available in [`docs/JSON_SCHEMA.md`](docs/JSON_SCHEMA.md).
 
@@ -108,7 +108,7 @@ Start with [`docs/EXAMPLE.json`](docs/EXAMPLE.json) as a template. The complete 
         {
           "id": "lesson-1",
           "title": "Welcome",
-          "type": "markdown",
+          "type": "lesson",
           "durationMinutes": 5,
           "content": "# Welcome\\n\\nWrite your lesson in **Markdown**."
         }
@@ -124,7 +124,7 @@ Start with [`docs/EXAMPLE.json`](docs/EXAMPLE.json) as a template. The complete 
 {
   "id": "quiz-1",
   "title": "Knowledge check",
-  "type": "quiz",
+  "type": "abcd_challenge",
   "durationMinutes": 5,
   "quiz": {
     "question": "Which value is correct?",
@@ -144,17 +144,20 @@ Start with [`docs/EXAMPLE.json`](docs/EXAMPLE.json) as a template. The complete 
 {
   "id": "assignment-1",
   "title": "Practice activity",
-  "type": "assignment",
+  "type": "essay_challenge",
   "durationMinutes": 10,
-  "assignment": {
-    "instructions": "Explain your solution in your own words.",
-    "submissionType": "text",
-    "answer": "## Jawaban dari Pembuat Soal\\n\\nAn optional model answer in **Markdown**."
-  }
+  "questions": [
+    {
+      "question": "Explain your solution in your own words.",
+      "answer": "## Jawaban dari Pembuat Soal\\n\\nThe model answer in **Markdown**."
+    }
+  ]
 }
 ```
 
-After a learner submits an answer, POS-LMS displays the optional author answer in a separate green card. An optional Markdown `answer` may also be placed directly on a lesson or inside its `quiz` object.
+Each essay question has its own multiline response field and **Periksa jawaban Saya** button. After the learner checks a response, POS-LMS displays that question's Markdown answer in a separate green card. Quiz answers may still be provided as an optional Markdown `answer` inside the `quiz` object.
+
+Older course files using `markdown`, `quiz`, and `assignment` lesson types remain supported and are converted to the current lesson types when uploaded.
 
 ### Progress fields
 
@@ -171,7 +174,7 @@ All course processing and progress storage happen in the browser. POS-LMS does n
 
 Local browser data can be removed by using **Restart**, **Switch Course**, or clearing the browser's site data. Export a progress JSON file if the learning state needs to be retained independently of the browser.
 
-Quiz selections and assignment responses are saved with the course in local storage, so they remain available when moving between lessons. They are also included in exported progress files. **Restart** clears these responses.
+Quiz selections and essay responses are saved with the course in local storage, so they remain available when moving between lessons. They are also included in exported progress files. **Restart** clears these responses.
 
 ## Project Structure
 
@@ -182,7 +185,7 @@ src/
     DropZone.jsx          Course-file upload interface
     Navbar.jsx            Course actions and restart confirmation
     Sidebar.jsx           Sticky module and lesson navigation
-    LessonViewer.jsx      Lesson, quiz, assignment, and completion UI
+    LessonViewer.jsx      Lesson, challenge, and completion UI
 docs/
   EXAMPLE.json            Starter course file
   JSON_SCHEMA.md          Complete course JSON reference

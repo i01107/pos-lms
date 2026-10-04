@@ -3,7 +3,7 @@
 - Context are defined in `@LLM_CONTEXT.md`
 - If there's a significant changes in the app, look at the docs/ folder and update related files accordingly
 - Always ask me for some uncertain in running the task
-- If you have to run a terminal command, pause your activities, give me the command, and I will give you the `continue` signal after I did the command
+<!-- - If you have to run a terminal command, pause your activities, give me the command, and I will give you the `continue` signal after I did the command -->
 
 # Task 1
 I want you to update the app. If I click the `Switch Course` button, I want you to clean the localStorage so that it should start from the beginning. No completed course marked yet.
@@ -81,3 +81,28 @@ Implement these updates :
 - After user answer a problem, whatever the format is, I want the answer and the explanation stays, so when the user going back and forth between lessons, the answer remain. It will only restart to the first state when the user hit the `RESTART` button
 - In multiple choice problem ( quiz ), when the user answer with the wrong choice, I want the original answer turn red and the correct answer turn green. The behaviour of the explanation below remain as it is now
 <!-- End of task 8 -->
+
+# Task 9
+I want a major update on the Lesson type
+
+`markdown`
+- I want this type renamed into `lesson`
+
+`quiz`
+- I want this type renamed into `abcd_challenge`
+
+`assignment`
+- I want this type renamed into `essay_challenge`
+
+For the `essay_challenge` :
+- It can have 1 or more `questions`, I'm thinking it to be some kind of array of object, which each object will contain the question and the answer
+- Show each question, followed by a textarea, since the answer may be multi line
+- Each textarea for the answer should have placeholder : "Ketik atau paste jawaban kamu di sini"
+- User should give answer per question so after each textarea, there should be an answer submission button, named "Periksa jawaban Saya"
+- After user submit answer, show the correct answer from the json file below. Almost similar with current behavior, but I want to have it shown per question for now
+- As an example, I want you to update `course3.json` file to follow the updates. This file is the material sample
+
+Also update all affected files on this project according to this Task
+
+After all your works, answer this question : for essai, is it possible that you check the answer according to the json source. Since it is wild text, it won't be exactly the same. For example : `3x + 2y + 5` and `2y + 3x + 5` should consider as the same answer
+<!-- End of task 9 -->

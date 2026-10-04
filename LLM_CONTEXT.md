@@ -1,7 +1,7 @@
 # POS-LMS Architecture & Rules
 
 ## Project Summary
-POS-LMS (Portable Open Source LMS) is an open-source, serverless, client-side LMS engine built with Vite + React + Tailwind CSS. It parses local JSON course files via drag-and-drop or file selection and dynamically renders lessons, interactive quizzes, markdown content, and assignments without a backend server.
+POS-LMS (Portable Open Source LMS) is an open-source, serverless, client-side LMS engine built with Vite + React + Tailwind CSS. It parses local JSON course files via drag-and-drop or file selection and dynamically renders `lesson`, `abcd_challenge`, and `essay_challenge` content without a backend server. Legacy lesson types are normalized on upload.
 
 ## Tech Stack
 - **Framework:** React 18 (Vite SPA)
@@ -21,4 +21,4 @@ POS-LMS (Portable Open Source LMS) is an open-source, serverless, client-side LM
 - `src/components/DropZone.jsx` — JSON file reader & drop handler.
 - `src/components/Navbar.jsx` — Global header, progress saving, course switcher, and restart confirmation.
 - `src/components/Sidebar.jsx` — Sticky module/lesson navigation and completion bar.
-- `src/components/LessonViewer.jsx` — Dynamic lesson renderer (Markdown, Quiz, Assignment), lesson navigation, completion prompts, and final-lesson celebration.
+- `src/components/LessonViewer.jsx` — Dynamic lesson renderer (lesson content, multiple-choice and essay challenges), lesson navigation, and final-lesson celebration.

@@ -86,11 +86,9 @@ export default function LessonViewer({
 }) {
   const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
   const finishModalRef = useRef(null);
-  const answer = lesson?.answer ?? lesson?.quiz?.answer ?? lesson?.assignment?.answer;
+  const answer = lesson?.answer ?? lesson?.quiz?.answer;
   const selectedOption = learnerState.selectedOption ?? null;
   const quizSubmitted = learnerState.quizSubmitted === true;
-  const assignmentResponse = learnerState.assignmentResponse ?? '';
-  const assignmentSubmitted = learnerState.assignmentSubmitted === true;
 
   useEffect(() => {
     setIsFinishModalOpen(false);
@@ -115,13 +113,13 @@ export default function LessonViewer({
     setIsFinishModalOpen(true);
   };
 
-  const AnswerCard = () => (
+  const AnswerCard = ({ answerText }) => (
     <div className="border border-emerald-200 bg-emerald-50/40 rounded-2xl p-6 space-y-4">
       <div className="flex items-center gap-2 text-emerald-950 font-bold">
         <Lightbulb className="w-5 h-5 text-amber-400 fill-amber-200" />
         <h3>Jawaban dari Pembuat Soal</h3>
       </div>
-      <MarkdownContent className="text-sm">{answer}</MarkdownContent>
+      <MarkdownContent className="text-sm">{answerText}</MarkdownContent>
     </div>
   );
 
@@ -141,9 +139,9 @@ export default function LessonViewer({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <span className="text-xs uppercase tracking-wider font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5">
-              {lesson.type === 'quiz' && <HelpCircle className="w-3.5 h-3.5" />}
-              {lesson.type === 'assignment' && <FileText className="w-3.5 h-3.5" />}
-              {lesson.type === 'markdown' && <BookOpen className="w-3.5 h-3.5" />}
+              {lesson.type === 'abcd_challenge' && <HelpCircle className="w-3.5 h-3.5" />}
+              {lesson.type === 'essay_challenge' && <FileText className="w-3.5 h-3.5" />}
+              {lesson.type === 'lesson' && <BookOpen className="w-3.5 h-3.5" />}
               {lesson.type}
             </span>
             <span className="text-xs text-slate-500 flex items-center gap-1">
@@ -169,12 +167,12 @@ export default function LessonViewer({
       </div>
 
       {/* Lesson Type: Markdown with Code Highlighting */}
-      {lesson.type === 'markdown' && (
+      {lesson.type === 'lesson' && (
         <MarkdownContent className="space-y-4">{lesson.content}</MarkdownContent>
       )}
 
       {/* Lesson Type: Quiz */}
-      {lesson.type === 'quiz' && lesson.quiz && (
+      {lesson.type === 'abcd_challenge' && lesson.quiz && (
         <>
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5">
             <div className="flex items-start gap-3">
@@ -238,39 +236,56 @@ export default function LessonViewer({
               </div>
             )}
           </div>
-          {quizSubmitted && answer && <AnswerCard />}
+          {quizSubmitted && answer && <AnswerCard answerText={answer} />}
         </>
       )}
 
       {/* Lesson Type: Assignment */}
-      {lesson.type === 'assignment' && lesson.assignment && (
-        <>
-          <div className="border border-indigo-200 bg-indigo-50/40 rounded-2xl p-6 space-y-4">
-            <div className="flex items-center gap-2 text-indigo-950 font-bold">
-              <FileText className="w-5 h-5 text-indigo-600" />
-              <h3>Practical Assignment</h3>
-            </div>
-            <MarkdownContent className="text-sm">
-              {lesson.assignment.instructions}
-            </MarkdownContent>
-            <textarea
-              rows="4"
-              value={assignmentResponse}
-              onChange={(event) => updateLearnerState({ assignmentResponse: event.target.value })}
-              placeholder="Type your response or paste project links here..."
-              className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
-            />
-            <button
-              type="button"
-              disabled={!assignmentResponse.trim()}
-              onClick={() => updateLearnerState({ assignmentSubmitted: true })}
-              className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-sm"
-            >
-              Submit Answer
-            </button>
-          </div>
-          {assignmentSubmitted && answer && <AnswerCard />}
-        </>
+      {lesson.type === 'essay_challenge' && Array.isArray(lesson.questions) && (
+        <div className="space-y-6">
+          {lesson.questions.map((question, index) => {
+            const savedResponse = learnerState.questionResponses?.[index] ?? {};
+            const response = savedResponse.response ?? '';
+            const submitted = savedResponse.submitted === true;
+            return (
+              <div key={index} className="space-y-4">
+                <div className="border border-indigo-200 bg-indigo-50/40 rounded-2xl p-6 space-y-4">
+                  <div className="flex items-center gap-2 text-indigo-950 font-bold">
+                    <FileText className="w-5 h-5 text-indigo-600" />
+                    <h3>Practical Assignment — Question {index + 1}</h3>
+                  </div>
+                  <MarkdownContent className="text-sm">{question.question}</MarkdownContent>
+                  <textarea
+                    rows="4"
+                    value={response}
+                    onChange={(event) => updateLearnerState({
+                      questionResponses: {
+                        ...learnerState.questionResponses,
+                        [index]: { ...savedResponse, response: event.target.value },
+                      },
+                    })}
+                    placeholder="Ketik atau paste jawaban kamu di sini"
+                    className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    disabled={!response.trim() || submitted}
+                    onClick={() => updateLearnerState({
+                      questionResponses: {
+                        ...learnerState.questionResponses,
+                        [index]: { ...savedResponse, response, submitted: true },
+                      },
+                    })}
+                    className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-sm"
+                  >
+                    Periksa jawaban Saya
+                  </button>
+                </div>
+                {submitted && question.answer && <AnswerCard answerText={question.answer} />}
+              </div>
+            );
+          })}
+        </div>
       )}
 
       <nav className="flex items-center justify-between gap-4 border-t border-slate-200 pt-6" aria-label="Lesson navigation">

@@ -24,21 +24,23 @@ interface Module {
 interface Lesson {
   id: string;
   title: string;
-  type: 'markdown' | 'quiz' | 'assignment';
+  type: 'lesson' | 'abcd_challenge' | 'essay_challenge';
   durationMinutes: number;
   completed?: boolean; // Defaults to false; updated when a learner marks it complete
-  learnerState?: LearnerState; // Optional saved quiz/assignment responses for this learner
-  answer?: string; // Optional Markdown answer shown after a quiz or assignment is submitted
-  content?: string; // Required if type === 'markdown'
-  quiz?: Quiz;       // Required if type === 'quiz'
-  assignment?: Assignment; // Required if type === 'assignment'
+  learnerState?: LearnerState; // Optional saved quiz/essay responses for this learner
+  answer?: string; // Optional Markdown answer shown after a quiz is submitted
+  content?: string; // Required if type === 'lesson'
+  quiz?: Quiz; // Required if type === 'abcd_challenge'
+  questions?: EssayQuestion[]; // Required if type === 'essay_challenge'
 }
 
 interface LearnerState {
   selectedOption?: number; // Selected quiz option (0-based)
   quizSubmitted?: boolean;
-  assignmentResponse?: string;
-  assignmentSubmitted?: boolean;
+  questionResponses?: Record<number, {
+    response?: string;
+    submitted?: boolean;
+  }>;
 }
 
 interface Quiz {
@@ -49,13 +51,14 @@ interface Quiz {
   answer?: string; // Optional Markdown answer shown after submission
 }
 
-interface Assignment {
-  instructions: string;
-  submissionType: 'text' | 'file';
-  answer?: string; // Optional Markdown answer shown after submission
+interface EssayQuestion {
+  question: string; // Markdown prompt displayed above a multiline response field
+  answer: string; // Markdown answer displayed after the learner checks this question
 }
 ```
 
 ## Learner Progress
 
-`completed`, `learnerState`, and `lastActiveLessonId` are optional so original course files remain valid. POS-LMS stores lesson completion and submitted or in-progress quiz and assignment responses in browser localStorage while a course is open. Selecting **Save My Progress** downloads a copy of the course JSON with the current progress embedded, allowing a learner to upload that file later and resume the course. **Restart** clears completion and response state and returns to the first lesson while keeping the uploaded course open.
+`completed`, `learnerState`, and `lastActiveLessonId` are optional so original course files remain valid. POS-LMS stores lesson completion and submitted or in-progress quiz and essay responses in browser localStorage while a course is open. Selecting **Save My Progress** downloads a copy of the course JSON with the current progress embedded, allowing a learner to upload that file later and resume the course. **Restart** clears completion and response state and returns to the first lesson while keeping the uploaded course open.
+
+Older files using lesson types `markdown`, `quiz`, `assignment`, or the misspelled `essai_challenge` are accepted. On upload, POS-LMS converts them to `lesson`, `abcd_challenge`, and `essay_challenge`. A legacy assignment becomes a single essay question using its `instructions` and `answer` values.

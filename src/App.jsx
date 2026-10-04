@@ -6,9 +6,34 @@ import DropZone from './components/DropZone';
 
 const getLessons = (course) => course?.modules?.flatMap((module) => module.lessons) ?? [];
 
+const normalizeLesson = (lesson) => {
+  const normalizedType = {
+    markdown: 'lesson',
+    quiz: 'abcd_challenge',
+    assignment: 'essay_challenge',
+    essai_challenge: 'essay_challenge',
+  }[lesson.type] ?? lesson.type;
+
+  if (normalizedType !== 'essay_challenge') {
+    return { ...lesson, type: normalizedType };
+  }
+
+  const legacyAssignment = lesson.assignment;
+  const questions = lesson.questions
+    ?? legacyAssignment?.questions
+    ?? (legacyAssignment?.instructions
+      ? [{
+          question: legacyAssignment.instructions,
+          answer: legacyAssignment.answer ?? lesson.answer,
+        }]
+      : []);
+  const { assignment, ...lessonFields } = lesson;
+  return { ...lessonFields, type: normalizedType, questions };
+};
+
 const prepareCourse = (courseData, legacyCompletedLessons = []) => {
   const legacyCompleted = new Set(legacyCompletedLessons);
-  const lessons = getLessons(courseData);
+  const lessons = getLessons(courseData).map(normalizeLesson);
   const firstLessonId = lessons[0]?.id ?? null;
   const validLastActiveLessonId = lessons.some(
     (lesson) => lesson.id === courseData.lastActiveLessonId,
@@ -21,10 +46,27 @@ const prepareCourse = (courseData, legacyCompletedLessons = []) => {
     lastActiveLessonId: validLastActiveLessonId,
     modules: (courseData.modules ?? []).map((module) => ({
       ...module,
-      lessons: module.lessons.map((lesson) => ({
+      lessons: module.lessons.map((rawLesson) => {
+        const lesson = normalizeLesson(rawLesson);
+        const legacyResponse = lesson.learnerState?.assignmentResponse;
+        const learnerState = lesson.learnerState ?? {};
+        return {
         ...lesson,
         completed: lesson.completed === true || legacyCompleted.has(lesson.id),
-      })),
+        learnerState: lesson.type === 'essay_challenge' && legacyResponse !== undefined
+          ? {
+              ...learnerState,
+              questionResponses: {
+                ...learnerState.questionResponses,
+                0: {
+                  response: legacyResponse,
+                  submitted: learnerState.assignmentSubmitted === true,
+                },
+              },
+            }
+          : learnerState,
+        };
+      }),
     })),
   };
 };
