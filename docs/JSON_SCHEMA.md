@@ -27,10 +27,18 @@ interface Lesson {
   type: 'markdown' | 'quiz' | 'assignment';
   durationMinutes: number;
   completed?: boolean; // Defaults to false; updated when a learner marks it complete
+  learnerState?: LearnerState; // Optional saved quiz/assignment responses for this learner
   answer?: string; // Optional Markdown answer shown after a quiz or assignment is submitted
   content?: string; // Required if type === 'markdown'
   quiz?: Quiz;       // Required if type === 'quiz'
   assignment?: Assignment; // Required if type === 'assignment'
+}
+
+interface LearnerState {
+  selectedOption?: number; // Selected quiz option (0-based)
+  quizSubmitted?: boolean;
+  assignmentResponse?: string;
+  assignmentSubmitted?: boolean;
 }
 
 interface Quiz {
@@ -50,4 +58,4 @@ interface Assignment {
 
 ## Learner Progress
 
-`completed` and `lastActiveLessonId` are optional so original course files remain valid. POS-LMS stores changes to these fields in browser localStorage while a course is open. Selecting **Save My Progress** downloads a copy of the course JSON with the current progress embedded, allowing a learner to upload that file later and resume the course.
+`completed`, `learnerState`, and `lastActiveLessonId` are optional so original course files remain valid. POS-LMS stores lesson completion and submitted or in-progress quiz and assignment responses in browser localStorage while a course is open. Selecting **Save My Progress** downloads a copy of the course JSON with the current progress embedded, allowing a learner to upload that file later and resume the course. **Restart** clears completion and response state and returns to the first lesson while keeping the uploaded course open.

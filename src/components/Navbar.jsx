@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Download, TriangleAlert } from 'lucide-react';
 
-export default function Navbar({ courseTitle, resetCourse, saveProgress }) {
+export default function Navbar({ courseTitle, resetCourse, restartCourse, saveProgress }) {
   const [isRestartModalOpen, setIsRestartModalOpen] = useState(false);
   const restartModalRef = useRef(null);
 
@@ -13,7 +13,7 @@ export default function Navbar({ courseTitle, resetCourse, saveProgress }) {
 
   const confirmRestart = () => {
     setIsRestartModalOpen(false);
-    resetCourse();
+    restartCourse();
   };
 
   return (
@@ -79,7 +79,7 @@ export default function Navbar({ courseTitle, resetCourse, saveProgress }) {
               Are you sure?
             </h2>
             <p id="restart-description" className="mt-2 text-sm leading-6 text-slate-600">
-              Any unsaved progress will be lost forever.
+              All lesson progress and answers will be cleared.
             </p>
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button

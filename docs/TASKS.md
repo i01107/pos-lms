@@ -73,3 +73,11 @@ On the last lesson, I want the Next button changed into Finish button. When user
 - Show a congratulations modal box and congrats the user that he already finish the module
 - A bit of animation using javacript or animated gif / png image like trumpet or anything which showing a celebration would be nice
 <!-- End of task 7 -->
+
+# Task 8
+Implement these updates :
+- When the user hit the `RESTART` button, I want the module start from the beginning as if the user just uploaded the material. So, if the user already answer 1 or more questions, the answers get flush and we start all over again
+- When the user hit `NEXT` button, it will directly move to the next lesson WITHOUT the confirmation modal. And the current lesson will automatically marked as complete
+- After user answer a problem, whatever the format is, I want the answer and the explanation stays, so when the user going back and forth between lessons, the answer remain. It will only restart to the first state when the user hit the `RESTART` button
+- In multiple choice problem ( quiz ), when the user answer with the wrong choice, I want the original answer turn red and the correct answer turn green. The behaviour of the explanation below remain as it is now
+<!-- End of task 8 -->

@@ -59,7 +59,7 @@ Upload a JSON course file. The application opens the first lesson by default, un
 
 ### Completing lessons
 
-Use **Mark as Complete** when you want to finish a lesson without leaving it. When selecting **Next**, incomplete lessons prompt you to either mark the lesson complete or continue without doing so. The final lesson uses **Finish**, which records completion and displays a congratulations dialog.
+Use **Mark as Complete** when you want to finish a lesson without leaving it. Selecting **Next** marks the current lesson complete and opens the next lesson immediately. The final lesson uses **Finish**, which records completion and displays a congratulations dialog.
 
 ### Saving progress
 
@@ -75,10 +75,10 @@ Upload that exported file later to restore completed lessons and resume at the l
 
 ### Restarting or changing course
 
-- **Restart** asks for confirmation, then removes the currently loaded course and its unsaved local progress.
+- **Restart** asks for confirmation, then clears lesson completion and all quiz and assignment responses and returns to the first lesson in the current course.
 - **Switch Course** immediately removes the currently loaded course and its local progress.
 
-Save progress before using either action if you want to continue the course later.
+Export progress before using either action if you want to continue the course later. Restart clears progress in the current browser; a previously exported file remains available to upload again.
 
 ## Creating a Course
 
@@ -171,7 +171,7 @@ All course processing and progress storage happen in the browser. POS-LMS does n
 
 Local browser data can be removed by using **Restart**, **Switch Course**, or clearing the browser's site data. Export a progress JSON file if the learning state needs to be retained independently of the browser.
 
-At present, text entered into an assignment response field is used only for the current on-screen submission flow. It is not saved to local storage or included in exported progress files.
+Quiz selections and assignment responses are saved with the course in local storage, so they remain available when moving between lessons. They are also included in exported progress files. **Restart** clears these responses.
 
 ## Project Structure
 

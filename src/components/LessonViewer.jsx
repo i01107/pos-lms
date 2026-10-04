@@ -74,39 +74,27 @@ function MarkdownContent({ children, className = '' }) {
 
 export default function LessonViewer({
   lesson,
+  learnerState = {},
+  onLearnerStateChange,
   isCompleted,
   onToggleComplete,
   hasPreviousLesson,
   hasNextLesson,
   onPreviousLesson,
   onNextLesson,
-  onCompleteAndNext,
   onFinishCourse,
 }) {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [assignmentResponse, setAssignmentResponse] = useState('');
-  const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
-  const [isNextModalOpen, setIsNextModalOpen] = useState(false);
   const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
-  const nextModalRef = useRef(null);
   const finishModalRef = useRef(null);
   const answer = lesson?.answer ?? lesson?.quiz?.answer ?? lesson?.assignment?.answer;
+  const selectedOption = learnerState.selectedOption ?? null;
+  const quizSubmitted = learnerState.quizSubmitted === true;
+  const assignmentResponse = learnerState.assignmentResponse ?? '';
+  const assignmentSubmitted = learnerState.assignmentSubmitted === true;
 
   useEffect(() => {
-    setSelectedOption(null);
-    setQuizSubmitted(false);
-    setAssignmentResponse('');
-    setAssignmentSubmitted(false);
-    setIsNextModalOpen(false);
     setIsFinishModalOpen(false);
   }, [lesson?.id]);
-
-  useEffect(() => {
-    if (isNextModalOpen) {
-      nextModalRef.current?.focus();
-    }
-  }, [isNextModalOpen]);
 
   useEffect(() => {
     if (isFinishModalOpen) {
@@ -115,25 +103,11 @@ export default function LessonViewer({
   }, [isFinishModalOpen]);
 
   const handleNext = () => {
-    if (!hasNextLesson) {
-      return;
-    }
-
-    if (isCompleted) {
-      onNextLesson();
-    } else {
-      setIsNextModalOpen(true);
-    }
+    if (hasNextLesson) onNextLesson();
   };
 
-  const continueToNextLesson = (markComplete) => {
-    setIsNextModalOpen(false);
-
-    if (markComplete) {
-      onCompleteAndNext();
-    } else {
-      onNextLesson();
-    }
+  const updateLearnerState = (changes) => {
+    onLearnerStateChange({ ...learnerState, ...changes });
   };
 
   const finishCourse = () => {
@@ -212,16 +186,24 @@ export default function LessonViewer({
               {lesson.quiz.options.map((option, idx) => (
                 <button
                   key={idx}
-                  onClick={() => !quizSubmitted && setSelectedOption(idx)}
+                  onClick={() => !quizSubmitted && updateLearnerState({ selectedOption: idx })}
                   className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition-all flex items-center justify-between ${
-                    selectedOption === idx
-                      ? 'border-emerald-600 bg-emerald-50/60 text-emerald-950 shadow-sm'
-                      : 'border-slate-200 bg-white hover:bg-slate-100/80 text-slate-700'
+                    quizSubmitted && selectedOption !== lesson.quiz.correctIndex && selectedOption === idx
+                      ? 'border-rose-500 bg-rose-50 text-rose-950'
+                      : quizSubmitted && lesson.quiz.correctIndex === idx
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-950'
+                        : selectedOption === idx
+                          ? 'border-emerald-600 bg-emerald-50/60 text-emerald-950 shadow-sm'
+                          : 'border-slate-200 bg-white hover:bg-slate-100/80 text-slate-700'
                   }`}
                 >
                   <span>{option}</span>
                   <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                    selectedOption === idx ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
+                    quizSubmitted && selectedOption !== lesson.quiz.correctIndex && selectedOption === idx
+                      ? 'border-rose-600 bg-rose-600'
+                      : quizSubmitted && lesson.quiz.correctIndex === idx
+                        ? 'border-emerald-600 bg-emerald-600'
+                        : selectedOption === idx ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
                   }`}>
                     {selectedOption === idx && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
                   </span>
@@ -232,7 +214,7 @@ export default function LessonViewer({
             {!quizSubmitted ? (
               <button
                 disabled={selectedOption === null}
-                onClick={() => setQuizSubmitted(true)}
+                onClick={() => updateLearnerState({ quizSubmitted: true })}
                 className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-40 transition-all shadow-sm"
               >
                 Submit Answer
@@ -274,14 +256,14 @@ export default function LessonViewer({
             <textarea
               rows="4"
               value={assignmentResponse}
-              onChange={(event) => setAssignmentResponse(event.target.value)}
+              onChange={(event) => updateLearnerState({ assignmentResponse: event.target.value })}
               placeholder="Type your response or paste project links here..."
               className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
             />
             <button
               type="button"
               disabled={!assignmentResponse.trim()}
-              onClick={() => setAssignmentSubmitted(true)}
+              onClick={() => updateLearnerState({ assignmentSubmitted: true })}
               className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-sm"
             >
               Submit Answer
@@ -322,48 +304,6 @@ export default function LessonViewer({
           </button>
         )}
       </nav>
-
-      {isNextModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-          <div
-            ref={nextModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="next-lesson-title"
-            aria-describedby="next-lesson-description"
-            tabIndex={-1}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                setIsNextModalOpen(false);
-              }
-            }}
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl outline-none"
-          >
-            <h2 id="next-lesson-title" className="text-xl font-bold text-slate-900">
-              Continue to the next lesson?
-            </h2>
-            <p id="next-lesson-description" className="mt-2 text-sm leading-6 text-slate-600">
-              Would you like to mark “{lesson.title}” as complete before continuing?
-            </p>
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() => continueToNextLesson(false)}
-                className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
-              >
-                No, continue
-              </button>
-              <button
-                type="button"
-                onClick={() => continueToNextLesson(true)}
-                className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-              >
-                Yes, mark complete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {isFinishModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">

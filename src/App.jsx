@@ -73,6 +73,40 @@ export default function App() {
     setOriginalFileName(null);
   };
 
+  const restartCourse = () => {
+    if (!course) return;
+    const firstLessonId = getLessons(course)[0]?.id ?? null;
+    const restartedCourse = {
+      ...course,
+      lastActiveLessonId: firstLessonId,
+      modules: course.modules.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) => {
+          const { learnerState, ...courseLesson } = lesson;
+          return { ...courseLesson, completed: false };
+        }),
+      })),
+    };
+    setCourse(restartedCourse);
+    setActiveLessonId(firstLessonId);
+    persistCourse(restartedCourse);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
+  const updateLearnerState = (lessonId, learnerState) => {
+    const updatedCourse = {
+      ...course,
+      modules: course.modules.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) => (
+          lesson.id === lessonId ? { ...lesson, learnerState } : lesson
+        )),
+      })),
+    };
+    setCourse(updatedCourse);
+    persistCourse(updatedCourse);
+  };
+
   const toggleLessonComplete = (lessonId) => {
     const updatedCourse = {
       ...course,
@@ -107,6 +141,7 @@ export default function App() {
     setActiveLessonId(nextLessonId);
     setCourse(updatedCourse);
     persistCourse(updatedCourse);
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   const completeLesson = (lessonId) => {
@@ -171,6 +206,7 @@ export default function App() {
       <Navbar
         courseTitle={course?.title}
         resetCourse={resetCourse}
+        restartCourse={restartCourse}
         saveProgress={saveProgress}
       />
 
@@ -189,15 +225,14 @@ export default function App() {
           <main className="min-w-0 flex-1 p-8 lg:p-12">
             <LessonViewer 
               lesson={activeLesson} 
+              learnerState={activeLesson?.learnerState ?? {}}
+              onLearnerStateChange={(state) => updateLearnerState(activeLessonId, state)}
               isCompleted={completedLessons.includes(activeLessonId)}
               onToggleComplete={() => toggleLessonComplete(activeLessonId)}
               hasPreviousLesson={Boolean(previousLesson)}
               hasNextLesson={Boolean(nextLesson)}
-              onPreviousLesson={() => previousLesson && openLesson(previousLesson.id)}
-              onNextLesson={() => nextLesson && openLesson(nextLesson.id)}
-              onCompleteAndNext={() => (
-                nextLesson && completeLessonAndOpenNext(activeLessonId, nextLesson.id)
-              )}
+              onPreviousLesson={() => previousLesson && openLesson(previousLesson.id, true)}
+              onNextLesson={() => nextLesson && completeLessonAndOpenNext(activeLessonId, nextLesson.id)}
               onFinishCourse={() => completeLesson(activeLessonId)}
             />
           </main>
