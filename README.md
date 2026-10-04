@@ -155,7 +155,7 @@ Start with [`docs/EXAMPLE.json`](docs/EXAMPLE.json) as a template. The complete 
 }
 ```
 
-Each essay question has its own multiline response field and **Periksa jawaban Saya** button. After the learner checks a response, POS-LMS displays that question's Markdown answer in a separate green card. Quiz answers may still be provided as an optional Markdown `answer` inside the `quiz` object.
+Each essay question has its own multiline response field and **Tampilkan jawaban pembuat soal** button. The button reveals that question's Markdown answer without grading the response. Essay challenges may include shared Markdown `context` displayed once beneath the sticky lesson title. Quiz answers may still be provided as an optional Markdown `answer` inside the `quiz` object.
 
 Older course files using `markdown`, `quiz`, and `assignment` lesson types remain supported and are converted to the current lesson types when uploaded.
 

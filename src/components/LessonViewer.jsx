@@ -87,6 +87,7 @@ export default function LessonViewer({
   const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
   const finishModalRef = useRef(null);
   const answer = lesson?.answer ?? lesson?.quiz?.answer;
+  const isEssayChallenge = lesson?.type === 'essay_challenge';
   const selectedOption = learnerState.selectedOption ?? null;
   const quizSubmitted = learnerState.quizSubmitted === true;
 
@@ -135,7 +136,9 @@ export default function LessonViewer({
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Lesson Header */}
-      <div className="border-b border-slate-200 pb-6">
+      <div className={isEssayChallenge
+        ? 'sticky top-16 z-20 border-b border-slate-200 bg-white/95 backdrop-blur'
+        : 'border-b border-slate-200 pb-6'}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <span className="text-xs uppercase tracking-wider font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5">
@@ -164,6 +167,11 @@ export default function LessonViewer({
         </div>
         
         <h1 className="text-3xl font-extrabold text-slate-900">{lesson.title}</h1>
+        {isEssayChallenge && lesson.context && (
+          <MarkdownContent className="my-5 max-h-[28vh] overflow-y-auto">
+            {lesson.context}
+          </MarkdownContent>
+        )}
       </div>
 
       {/* Lesson Type: Markdown with Code Highlighting */}
@@ -242,50 +250,58 @@ export default function LessonViewer({
 
       {/* Lesson Type: Assignment */}
       {lesson.type === 'essay_challenge' && Array.isArray(lesson.questions) && (
-        <div className="space-y-6">
+        <section className="space-y-3" aria-label="Essay challenge questions">
           {lesson.questions.map((question, index) => {
             const savedResponse = learnerState.questionResponses?.[index] ?? {};
             const response = savedResponse.response ?? '';
-            const submitted = savedResponse.submitted === true;
+            const answerShown = savedResponse.answerShown === true || savedResponse.submitted === true;
             return (
-              <div key={index} className="space-y-4">
-                <div className="border border-indigo-200 bg-indigo-50/40 rounded-2xl p-6 space-y-4">
-                  <div className="flex items-center gap-2 text-indigo-950 font-bold">
-                    <FileText className="w-5 h-5 text-indigo-600" />
-                    <h3>Practical Assignment — Question {index + 1}</h3>
+              <article key={index} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                <div className="mb-3 flex items-start gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-100 text-sm font-bold text-violet-800">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 flex-1 pt-1">
+                    <MarkdownContent className="">{question.question}</MarkdownContent>
                   </div>
-                  <MarkdownContent className="text-sm">{question.question}</MarkdownContent>
-                  <textarea
-                    rows="4"
-                    value={response}
-                    onChange={(event) => updateLearnerState({
-                      questionResponses: {
-                        ...learnerState.questionResponses,
-                        [index]: { ...savedResponse, response: event.target.value },
-                      },
-                    })}
-                    placeholder="Ketik atau paste jawaban kamu di sini"
-                    className="w-full p-3.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
-                  />
+                  {answerShown && <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-emerald-600" aria-label="Answer shown" />}
+                </div>
+                <textarea
+                  rows="3"
+                  value={response}
+                  onChange={(event) => updateLearnerState({
+                    questionResponses: {
+                      ...learnerState.questionResponses,
+                      [index]: { ...savedResponse, response: event.target.value },
+                    },
+                  })}
+                  placeholder="Ketik atau paste jawaban kamu di sini"
+                  aria-label={`Your answer to question ${index + 1}`}
+                  className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
+                />
+                {!answerShown && (
                   <button
                     type="button"
-                    disabled={!response.trim() || submitted}
                     onClick={() => updateLearnerState({
                       questionResponses: {
                         ...learnerState.questionResponses,
-                        [index]: { ...savedResponse, response, submitted: true },
+                        [index]: { ...savedResponse, response, answerShown: true },
                       },
                     })}
-                    className="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-sm"
+                    className="mt-3 inline-flex items-center gap-2 rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Periksa jawaban Saya
+                    Tampilkan jawaban pembuat soal
                   </button>
-                </div>
-                {submitted && question.answer && <AnswerCard answerText={question.answer} />}
-              </div>
+                )}
+                {answerShown && question.answer && (
+                  <div className="mt-2 border-emerald-200 pt-4">
+                    <AnswerCard answerText={question.answer} />
+                  </div>
+                )}
+              </article>
             );
           })}
-        </div>
+        </section>
       )}
 
       <nav className="flex items-center justify-between gap-4 border-t border-slate-200 pt-6" aria-label="Lesson navigation">

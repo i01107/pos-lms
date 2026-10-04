@@ -31,6 +31,7 @@ interface Lesson {
   answer?: string; // Optional Markdown answer shown after a quiz is submitted
   content?: string; // Required if type === 'lesson'
   quiz?: Quiz; // Required if type === 'abcd_challenge'
+  context?: string; // Optional shared Markdown context for all essay questions in this challenge
   questions?: EssayQuestion[]; // Required if type === 'essay_challenge'
 }
 
@@ -39,7 +40,7 @@ interface LearnerState {
   quizSubmitted?: boolean;
   questionResponses?: Record<number, {
     response?: string;
-    submitted?: boolean;
+    answerShown?: boolean;
   }>;
 }
 

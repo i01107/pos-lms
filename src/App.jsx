@@ -6,6 +6,34 @@ import DropZone from './components/DropZone';
 
 const getLessons = (course) => course?.modules?.flatMap((module) => module.lessons) ?? [];
 
+const extractSharedEssayContext = (questions, existingContext) => {
+  const marker = '**Pertanyaan:**';
+  if (existingContext || questions.length < 2) {
+    return { context: existingContext, questions };
+  }
+
+  const splitQuestions = questions.map((item) => {
+    const text = item.question ?? '';
+    const markerIndex = text.indexOf(marker);
+    return markerIndex < 0
+      ? null
+      : { context: text.slice(0, markerIndex).trim(), question: text.slice(markerIndex + marker.length).trim() };
+  });
+  const sharedContext = splitQuestions[0]?.context;
+  const hasSameContext = sharedContext
+    && splitQuestions.every((item) => item?.context === sharedContext);
+
+  return hasSameContext
+    ? {
+        context: sharedContext,
+        questions: questions.map((item, index) => ({
+          ...item,
+          question: splitQuestions[index].question,
+        })),
+      }
+    : { context: existingContext, questions };
+};
+
 const normalizeLesson = (lesson) => {
   const normalizedType = {
     markdown: 'lesson',
@@ -19,7 +47,7 @@ const normalizeLesson = (lesson) => {
   }
 
   const legacyAssignment = lesson.assignment;
-  const questions = lesson.questions
+  let questions = lesson.questions
     ?? legacyAssignment?.questions
     ?? (legacyAssignment?.instructions
       ? [{
@@ -27,8 +55,41 @@ const normalizeLesson = (lesson) => {
           answer: legacyAssignment.answer ?? lesson.answer,
         }]
       : []);
+  let context = lesson.context;
+  ({ context, questions } = extractSharedEssayContext(questions, context));
+  if (context) {
+    questions = questions.map((item) => {
+      const prompt = item.question ?? '';
+      if (!prompt.startsWith(context)) return item;
+      const remainder = prompt.slice(context.length).replace(/^\s*(?:\*\*Pertanyaan:\*\*\s*)?/, '');
+      return { ...item, question: remainder };
+    });
+  }
   const { assignment, ...lessonFields } = lesson;
-  return { ...lessonFields, type: normalizedType, questions };
+  return { ...lessonFields, type: normalizedType, context, questions };
+};
+
+const normalizeEssayLearnerState = (learnerState = {}) => {
+  const { assignmentResponse, assignmentSubmitted, questionResponses, ...otherState } = learnerState;
+  const normalizedResponses = Object.fromEntries(
+    Object.entries(questionResponses ?? {}).map(([index, response]) => {
+      const { submitted, ...otherResponse } = response ?? {};
+      return [index, {
+        ...otherResponse,
+        answerShown: response?.answerShown === true || submitted === true,
+      }];
+    }),
+  );
+
+  if (assignmentResponse !== undefined) {
+    normalizedResponses[0] = {
+      ...normalizedResponses[0],
+      response: assignmentResponse,
+      answerShown: assignmentSubmitted === true,
+    };
+  }
+
+  return { ...otherState, questionResponses: normalizedResponses };
 };
 
 const prepareCourse = (courseData, legacyCompletedLessons = []) => {
@@ -48,23 +109,13 @@ const prepareCourse = (courseData, legacyCompletedLessons = []) => {
       ...module,
       lessons: module.lessons.map((rawLesson) => {
         const lesson = normalizeLesson(rawLesson);
-        const legacyResponse = lesson.learnerState?.assignmentResponse;
         const learnerState = lesson.learnerState ?? {};
         return {
-        ...lesson,
-        completed: lesson.completed === true || legacyCompleted.has(lesson.id),
-        learnerState: lesson.type === 'essay_challenge' && legacyResponse !== undefined
-          ? {
-              ...learnerState,
-              questionResponses: {
-                ...learnerState.questionResponses,
-                0: {
-                  response: legacyResponse,
-                  submitted: learnerState.assignmentSubmitted === true,
-                },
-              },
-            }
-          : learnerState,
+          ...lesson,
+          completed: lesson.completed === true || legacyCompleted.has(lesson.id),
+          learnerState: lesson.type === 'essay_challenge'
+            ? normalizeEssayLearnerState(learnerState)
+            : learnerState,
         };
       }),
     })),
@@ -242,7 +293,6 @@ export default function App() {
   const completedLessons = lessons
     .filter((lesson) => lesson.completed)
     .map((lesson) => lesson.id);
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
       <Navbar

@@ -106,3 +106,19 @@ Also update all affected files on this project according to this Task
 
 After all your works, answer this question : for essai, is it possible that you check the answer according to the json source. Since it is wild text, it won't be exactly the same. For example : `3x + 2y + 5` and `2y + 3x + 5` should consider as the same answer
 <!-- End of task 9 -->
+
+# Task 10
+Let's go back to our main page and the essay challenge.
+
+I want the `context` to be shown only once after the `title`. No need a card, just like when you show the content of a `lesson`
+
+Below the lesson, render each question in a white background card. You can use basic card design like in `/alter1` design, which include the question number etc, but without the context.
+
+Change the caption of the button from `Periksa jawaban saya` to `Tampilkan jawaban pembuat soal` since we won't do any grading or assessment for now.
+
+When user scroll down, I want the title and the context stick to the top below the top bar. So the question cards will looks vertically scrollable.
+
+When the `Tampilkan jawaban pembuat soal` clicked. It will show the answer and show a green check icon. This icon should replace the `Checked` position on the `/alter1` design
+
+Do only what I asked you for now. I want to see the result. Change any related files accordingly.
+<!-- End of task 10 -->
